@@ -1,0 +1,54 @@
+name: Build Telegram Desktop
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1  # Fetch only the latest commit
+          submodules: true  # Initialize and update submodules
+
+      - name: Apply patches and set up Podman
+        run: |
+          cd tdesktop
+          for patch in ../*.patch; do
+            echo "Applying patch: $patch"
+            patch -p1 < "$patch" || exit 1  # Exit if patch fails
+          done
+          cd ..
+          sudo apt-get update && sudo apt-get install -y podman
+
+      - name: Pull Podman image and Build Telegram Desktop
+        run: |
+          podman pull ghcr.io/telegramdesktop/tdesktop/centos_env:latest
+          podman run --rm -it \
+            -v "$PWD/tdesktop:/usr/src/tdesktop" \
+            ghcr.io/telegramdesktop/tdesktop/centos_env:latest \
+            /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
+            -D TDESKTOP_API_ID=611335 \
+            -D TDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c \
+            -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON  # Disable auto-update
+
+      - name: Strip the binary
+        run: |
+          strip tdesktop/out/Release/Telegram
+
+      - name: Create and Upload Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag: ${{ github.ref }}
+          files: tdesktop/out/Release/Telegram
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
