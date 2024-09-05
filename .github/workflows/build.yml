@@ -16,15 +16,16 @@ jobs:
       - name: Checkout main repository
         uses: actions/checkout@v2
         with:
-          fetch-depth: 1  # Fetch only the latest commit
-          submodules: true  # Initialize and update submodules
+          fetch-depth: 1
+          submodules: true
 
       - name: Apply patches and set up Podman
         run: |
           cd tdesktop
           for patch in ../*.patch; do
             echo "Applying patch: $patch"
-            patch -p1 < "$patch" || exit 1  # Exit if patch fails
+            patch -p1 < "$patch" || exit 1
+            echo -e ""
           done
           cd ..
           sudo apt-get update && sudo apt-get install -y podman
@@ -38,7 +39,7 @@ jobs:
             /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
             -D TDESKTOP_API_ID=611335 \
             -D TDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c \
-            -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON  # Disable auto-update
+            -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON
 
       - name: Strip the binary
         run: |
