@@ -28,7 +28,9 @@ jobs:
           for patch in ../*.patch; do
             echo "Applying patch: $patch"
             patch -p1 < "$patch"
+            echo ""  # New line for better readability after applying the patch
           done
+          cd ..
 
       - name: Set up Podman
         run: |
@@ -42,7 +44,7 @@ jobs:
       - name: Build Telegram Desktop
         run: |
           podman run --rm -it \
-            -v "$PWD:/usr/src/tdesktop" \
+            -v "$PWD/tdesktop:/usr/src/tdesktop" \
             ghcr.io/shwewo/tdesktop:centos_env \
             /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
             -D TDESKTOP_API_ID=611335 \
