@@ -28,7 +28,7 @@ jobs:
           for patch in ../*.patch; do
             echo "Applying patch: $patch"
             patch -p1 < "$patch"
-            echo -e "\n"  # New line for better readability after applying the patch
+            echo -e "\n"
           done
           cd ..
 
