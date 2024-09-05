@@ -1,0 +1,58 @@
+name: Build Telegram Desktop
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
+
+      - name: Clone tdesktop repository
+        run: |
+          git clone --recursive https://github.com/telegramdesktop/tdesktop.git
+          cd tdesktop
+
+      - name: Set up Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+
+      - name: Pull Podman image
+        run: |
+          podman pull ghcr.io/shwewo/tdesktop:centos_env
+
+      - name: Build Telegram Desktop
+        run: |
+          podman run --rm -it \
+            -v "$PWD/tdesktop:/usr/src/tdesktop" \
+            ghcr.io/shwewo/tdesktop:centos_env \
+            /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
+            -D TDESKTOP_API_ID=611335 \
+            -D TDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag: ${{ github.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Telegram binary
+        uses: softprops/action-gh-release@v1
+        with:
+          tag: ${{ github.ref }}
+          files: tdesktop/out/Release/Telegram
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
