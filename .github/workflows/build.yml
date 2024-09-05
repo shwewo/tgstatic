@@ -16,8 +16,7 @@ jobs:
       - name: Checkout main repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          submodules: true
+          submodules: recursive
 
       - name: Apply patches and set up Podman
         run: |
