@@ -39,15 +39,24 @@ jobs:
             -D TDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c \
             -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON
 
-      - name: Strip the binary
+      - name: Strip the binary and create tar.gz archive
         run: |
           strip tdesktop/out/Release/Telegram
+          tar -czvf tdesktop/out/Release/Telegram.tar.gz -C tdesktop/out/Release Telegram
+
+      - name: Generate release tag
+        id: tag
+        run: |
+          echo "::set-output name=release_tag::Release_$(date +"%Y-%m-%d_%H-%M")"
 
       - name: Create and Upload Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag: ${{ github.ref }}
-          files: tdesktop/out/Release/Telegram
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          files: |
+            tdesktop/out/Release/Telegram
+            tdesktop/out/Release/Telegram.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
