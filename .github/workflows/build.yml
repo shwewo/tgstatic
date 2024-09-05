@@ -36,7 +36,7 @@ jobs:
         run: |
           cd tdesktop
           for patch in ../*.patch; do
-            git apply "$patch"
+            patch -p1 < "$patch"
           done
 
       - name: Build Telegram Desktop
