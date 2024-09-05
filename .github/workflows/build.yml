@@ -21,7 +21,14 @@ jobs:
       - name: Clone tdesktop repository
         run: |
           git clone --recursive https://github.com/telegramdesktop/tdesktop.git
+
+      - name: Apply patches from main repository
+        run: |
           cd tdesktop
+          for patch in ../*.patch; do
+            echo "Applying patch: $patch"
+            patch -p1 < "$patch"
+          done
 
       - name: Set up Podman
         run: |
@@ -32,17 +39,10 @@ jobs:
         run: |
           podman pull ghcr.io/shwewo/tdesktop:centos_env
 
-      - name: Apply patches from main repository
-        run: |
-          cd tdesktop
-          for patch in ../*.patch; do
-            patch -p1 < "$patch"
-          done
-
       - name: Build Telegram Desktop
         run: |
           podman run --rm -it \
-            -v "$PWD/tdesktop:/usr/src/tdesktop" \
+            -v "$PWD:/usr/src/tdesktop" \
             ghcr.io/shwewo/tdesktop:centos_env \
             /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
             -D TDESKTOP_API_ID=611335 \
