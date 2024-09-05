@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,7 +26,7 @@ jobs:
           cd tdesktop
           for patch in ../*.patch; do
             echo "Applying patch: $patch"
-            patch -p1 < "$patch" || exit 1  # Exit if patch fails
+            patch -p1 < "$patch" || exit 1
           done
           cd ..
           sudo apt-get update && sudo apt-get install -y podman
