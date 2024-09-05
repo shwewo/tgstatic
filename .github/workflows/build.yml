@@ -28,7 +28,7 @@ jobs:
           for patch in ../*.patch; do
             echo "Applying patch: $patch"
             patch -p1 < "$patch"
-            echo -e "\n"
+            echo -e "\n"  # New line for better readability after applying the patch
           done
           cd ..
 
@@ -49,6 +49,10 @@ jobs:
             /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
             -D TDESKTOP_API_ID=611335 \
             -D TDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c
+
+      - name: Strip the binary
+        run: |
+          strip tdesktop/out/Release/Telegram
 
       - name: Create Release
         id: create_release
