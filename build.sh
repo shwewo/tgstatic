@@ -14,3 +14,5 @@ podman run --rm -it \
   -D TDESKTOP_API_ID=611335 \
   -D TDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c \
   -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON
+
+strip out/Release/Telegram
