@@ -14,9 +14,9 @@ jobs:
 
     steps:
       - name: Checkout main repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           submodules: true
 
       - name: Apply patches and set up Podman
@@ -24,8 +24,7 @@ jobs:
           cd tdesktop
           for patch in ../*.patch; do
             echo "Applying patch: $patch"
-            patch -p1 < "$patch" || exit 1
-            echo -e ""
+            patch -p1 < "$patch" || exit 1  # Exit if patch fails
           done
           cd ..
           sudo apt-get update && sudo apt-get install -y podman
